@@ -7,6 +7,12 @@
 
 extern GLuint prog;
 int faceCount = 0;
+const dvec4 _nullVec = dvec4(0);
+
+void _errorDegenerate () {
+    std::cerr << "Error when constructing a face. Degenerate vector sistem was given.\n";
+    exit(-1);
+}
 
 void loadShader (char *fileName, GLuint shader) {
     char* code = (char *)malloc(PGS_SHADER_FILE_SIZE);
@@ -70,7 +76,17 @@ void printVector (dvec4 v) {
     std::cout << v[0] << ' ' << v[1] << ' ' << v[2] << ' ' << v[3] << '\n';
 }
 
-dvec4 getOrtAdd (dvec4 &p, dvec4 &r, dvec4 &u) {
+void _orthonormalize (dvec4 &target, const dvec4 &u=_nullVec, const dvec4 &v=_nullVec) {
+    if (glm::length(target) < PGS_EPSILON)
+        _errorDegenerate();
+    target = glm::normalize(target);
+    target -= v * glm::dot(target, v) + u * glm::dot(target, u);
+    if (glm::length(target) < PGS_EPSILON)
+        _errorDegenerate();
+    target = glm::normalize(target);
+}
+
+dvec4 _getOrtAdd (dvec4 &p, dvec4 &r, dvec4 &u) {
     dvec4 maxVec = dvec4(0);
     dvec4 curVec;
     for (int i = 0; i < 4; ++i) {
@@ -83,6 +99,14 @@ dvec4 getOrtAdd (dvec4 &p, dvec4 &r, dvec4 &u) {
     return glm::normalize(maxVec);
 }
 
+fmat4 _getIM (dvec4 p, dvec4 r, dvec4 u) {
+    _orthonormalize(p);
+    _orthonormalize(r, p);
+    _orthonormalize(u, r, p);
+    dvec4 f = _getOrtAdd(p, r, u);
+    return glm::transpose(fmat4(p, r, u, f));
+}
+
 int regFace (Face &face) {
     face.faceIndex = faceCount;
     GLuint faceNumberLoc = glGetUniformLocation(prog, "faceNumber");
@@ -90,26 +114,30 @@ int regFace (Face &face) {
     GLuint faceColorLoc = getArrayLoc("faceColor", faceCount);
     GLuint faceCenterLoc = getArrayLoc("faceCenter", faceCount);
     GLuint faceStartLoc = getArrayLoc("faceStart", faceCount);
+    GLuint facePointLoc = getArrayLoc("facePoint", faceCount);
     GLuint faceRadLoc = getArrayLoc("faceRad", faceCount);
     ++faceCount;
     glUniform1i(faceNumberLoc, faceCount);
-    dmat4 IM = glm::transpose(dmat4(face.faceCenter, face.faceStart, face.facePoint, getOrtAdd(face.faceCenter, face.faceStart, face.facePoint)));
-
-    std::cout << "IM:\n";
-    printMatrix(IM);
-    std::cout << "IM * basis:\n";
-    printVector(IM * face.faceCenter);
-    printVector(IM * face.faceStart);
-    printVector(IM * face.facePoint);
-    fmat4 fIM = fmat4(IM);
-
+    fmat4 fIM = _getIM(face.faceCenter, face.faceStart, face.facePoint);
     glUniformMatrix4fv(faceIMLoc, 1, GL_FALSE, &fIM[0][0]);
     glUniform4f(faceColorLoc, face.faceColor[0], face.faceColor[1], face.faceColor[2], 1);
     fvec4 center = fvec4 (face.faceCenter);
     glUniform4fv(faceCenterLoc, 1, &center[0]);
     fvec4 start = fvec4 (face.faceStart);
     glUniform4fv(faceStartLoc, 1, &start[0]);
+    fvec4 point = fvec4 (face.facePoint);
+    glUniform4fv(facePointLoc, 1, &point[0]);
     glUniform1f(faceRadLoc, (float)face.faceRad);
+
+    std::cout << "IM:\n";
+    printMatrix(fIM);
+    std::cout << "center: ";
+    printVector(center);
+    std::cout << "start: ";
+    printVector(start);
+    std::cout << "point: ";
+    printVector(point);
+
     return face.faceIndex;
 }
 

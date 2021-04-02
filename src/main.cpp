@@ -76,24 +76,27 @@ void init (void) {
     renderLoad();   // this must be the first, I think
     glfwSetKeyCallback(window, keyCallback);
     srand(42);
-    double rad = 0.8;
-    /*
-    Face f0 = Face(fvec3(0, 0, 1), 4, dvec4(0, 0, 0, 1), dvec4(0, 1, 0, 0), dvec4(0, 0, 1, 0), 1);
-    regFace(f0);
-    */
-    Face f1 = Face(fvec3(1, 0, 0), 4, dvec4(0, 0, -1, 1), dvec4(1, -1, -1, 1), dvec4(1, 1, -1, 1), rad);
+    double rad = sqrt(.5);
+
+    Face f1 = Face(fvec3(1, 0, 0), 4, dvec4(0, 0, -1, 1)  * .5, dvec4(1, -1, -1, 1) * .5, dvec4(1, 1, -1, 1) * .5, rad);
     regFace(f1);
-    Face f2 = Face(fvec3(0, 1, 0), 4, dvec4(1, 0, 0, 1), dvec4(1, -1, 1, 1), dvec4(1, 1, 1, 1), rad);
+
+    Face f2 = Face(fvec3(0, 1, 0), 4, dvec4(1, 0, 0, 1) * .5, dvec4(1, -1, 1, 1) * .5, dvec4(1, 1, 1, 1) * .5, rad);
     regFace(f2);
-    Face f3 = Face(fvec3(0, 0, 1), 4, dvec4(0, 1, 0, 1), dvec4(1, 1, 1, 1), dvec4(-1, 1, 1, 1), rad);
+
+    Face f3 = Face(fvec3(0, 0, 1), 4, dvec4(0, 1, 0, 1) * .5, dvec4(1, 1, 1, 1) * .5, dvec4(-1, 1, 1, 1) * .5, rad);
     regFace(f3);
 
-    Face f4 = Face(fvec3(0, 1, 1), 4, dvec4(0, 0, 1, 1), dvec4(1, -1, 1, 1), dvec4(1, 1, 1, 1), rad);
+
+    Face f4 = Face(fvec3(0, 1, 1), 4, dvec4(0, 0, 1, 1) * .5, dvec4(1, -1, 1, 1) * .5, dvec4(1, 1, 1, 1) * .5, rad);
     regFace(f4);
-    Face f5 = Face(fvec3(1, 0, 1), 4, dvec4(-1, 0, 0, 1), dvec4(-1, -1, 1, 1), dvec4(-1, 1, 1, 1), rad);
+
+    Face f5 = Face(fvec3(1, 0, 1), 4, dvec4(-1, 0, 0, 1) * .5, dvec4(-1, -1, 1, 1) * .5, dvec4(-1, 1, 1, 1) * .5, rad);
     regFace(f5);
-    Face f6 = Face(fvec3(1, 1, 0), 4, dvec4(0, -1, 0, 1), dvec4(1, -1, 1, 1), dvec4(-1, -1, 1, 1), rad);
+
+    Face f6 = Face(fvec3(1, 1, 0), 4, dvec4(0, -1, 0, 1) * .5, dvec4(1, -1, 1, 1) * .5, dvec4(-1, -1, 1, 1) * .5, rad);
     regFace(f6);
+
 }
 
 void loop (void) {
@@ -111,8 +114,7 @@ void loop (void) {
     // std::cout << "fps: " << 1/deltaTime << '\n';
 }
 
-int main(void)
-{
+int main(void) {
     init();
     while (!exitCondition()) {
         loop();
