@@ -1,6 +1,6 @@
 #pragma once
 
-#include "figure.h"
+#include "face.hpp"
 
 using glm::fmat4;
 using glm::dmat4;
@@ -12,8 +12,7 @@ GLuint loadProgram (void);
 
 GLuint getArrayLoc (char* name, int index);
 
-int regFig (Figure &figure);
-void modFig (Figure &figure, int index);
+int regFace (Face &face);
 
 void setPlayer (dmat4 coord);
 

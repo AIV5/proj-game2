@@ -2,11 +2,11 @@
 #include <cstring>
 #include <iostream>
 #include <glad/glad.h>
-#include "settings.h"
-#include "shaderManager.h"
+#include "settings.hpp"
+#include "shaderManager.hpp"
 
 extern GLuint prog;
-int objCount = 0;
+int faceCount = 0;
 
 void loadShader (char *fileName, GLuint shader) {
     char* code = (char *)malloc(PGS_SHADER_FILE_SIZE);
@@ -36,13 +36,9 @@ void loadShader (char *fileName, GLuint shader) {
 
 GLuint loadProgram () {
     GLuint prog = glCreateProgram();
-    //GLuint vertShader = glCreateShader(GL_VERTEX_SHADER);
-    //loadShader(PGS_VERTEX_SHADER_NAME, vertShader);
     GLuint fragShader = glCreateShader(GL_FRAGMENT_SHADER);
     loadShader(PGS_FRAGMENT_SHADER_NAME, fragShader);
-    //glAttachShader(prog, vertShader);
     glAttachShader(prog, fragShader);
-    //glDeleteShader(vertShader);
     glDeleteShader(fragShader);
     glLinkProgram(prog);
 
@@ -74,57 +70,47 @@ void printVector (dvec4 v) {
     std::cout << v[0] << ' ' << v[1] << ' ' << v[2] << ' ' << v[3] << '\n';
 }
 
-int regFig (Figure &figure) {
-    figure.objIndex = objCount;
-    GLuint objNumberLoc = glGetUniformLocation(prog, "objNumber");
-    GLuint objTypeLoc = getArrayLoc("objType", objCount);
-    GLuint objPMLoc = getArrayLoc("objPM", objCount);
-    GLuint objColorLoc = getArrayLoc("objColor", objCount);
-    GLuint objCenterLoc = getArrayLoc("objCenter", objCount);
-    GLuint objRadLoc = getArrayLoc("objRad", objCount);
-    ++objCount;
-    glUniform1i(objNumberLoc, objCount);
-    glUniform1i(objTypeLoc, figure.objType);
-    dmat4 basis = figure.objCoord;
-    dmat4 PM = basis * glm::transpose(basis);
-    fmat4 fPM = fmat4 (PM);
-    glUniformMatrix4fv(objPMLoc, 1, GL_FALSE, &fPM[0][0]);
-    glUniform4f(objColorLoc, figure.objColor[0], figure.objColor[1], figure.objColor[2], 1);
-    fvec4 center = fvec4 (figure.objCoord[0]);
-    glUniform4fv(objCenterLoc, 1, &center[0]);
-    glUniform1f(objRadLoc, (float)figure.objRad);
-
-    std::cout << "figure: " << figure.objIndex << "\n";
-
-    std::cout << "basis:\n";
-    printMatrix(basis);
-
-    std::cout << "transpose(basis)\n";
-    printMatrix(glm::transpose(basis));
-
-    std::cout << " PM:\n";
-    printMatrix(PM);
-
-    return figure.objIndex;
+dvec4 getOrtAdd (dvec4 &p, dvec4 &r, dvec4 &u) {
+    dvec4 maxVec = dvec4(0);
+    dvec4 curVec;
+    for (int i = 0; i < 4; ++i) {
+        curVec = dvec4(0);
+        curVec[i] = 1;
+        curVec -= p * glm::dot(p, curVec) + r * glm::dot(r, curVec) + u * glm::dot(u, curVec);
+        if (glm::length(curVec) > glm::length(maxVec))
+            maxVec = curVec;
+    }
+    return glm::normalize(maxVec);
 }
 
-void modFig (Figure &figure, int index) {
-    GLuint objNumberLoc = getArrayLoc("objNumber", index);
-    GLuint objTypeLoc = getArrayLoc("objType", index);
-    GLuint objPMLoc = getArrayLoc("objPM", index);
-    GLuint objColorLoc = getArrayLoc("objColor", index);
-    GLuint objCenterLoc = getArrayLoc("objCenter", index);
-    GLuint objRadLoc = getArrayLoc("objRad", index);
-    glUniform1i(objTypeLoc, figure.objType);
-    glUniform1i(objTypeLoc, figure.objType);
-    dmat4 basis = figure.objCoord;
-    dmat4 PM = basis * glm::transpose(basis);
-    fmat4 fPM = fmat4 (PM);
-    glUniformMatrix4fv(objPMLoc, 1, GL_FALSE, &fPM[0][0]);
-    glUniform4f(objColorLoc, figure.objColor[0], figure.objColor[1], figure.objColor[2], 1);
-    fvec4 center = fvec4 (figure.objCoord[0]);
-    glUniform4fv(objCenterLoc, 1, &center[0]);
-    glUniform1f(objRadLoc, (float)figure.objRad);
+int regFace (Face &face) {
+    face.faceIndex = faceCount;
+    GLuint faceNumberLoc = glGetUniformLocation(prog, "faceNumber");
+    GLuint faceIMLoc = getArrayLoc("faceIM", faceCount);
+    GLuint faceColorLoc = getArrayLoc("faceColor", faceCount);
+    GLuint faceCenterLoc = getArrayLoc("faceCenter", faceCount);
+    GLuint faceStartLoc = getArrayLoc("faceStart", faceCount);
+    GLuint faceRadLoc = getArrayLoc("faceRad", faceCount);
+    ++faceCount;
+    glUniform1i(faceNumberLoc, faceCount);
+    dmat4 IM = glm::transpose(dmat4(face.faceCenter, face.faceStart, face.facePoint, getOrtAdd(face.faceCenter, face.faceStart, face.facePoint)));
+
+    std::cout << "IM:\n";
+    printMatrix(IM);
+    std::cout << "IM * basis:\n";
+    printVector(IM * face.faceCenter);
+    printVector(IM * face.faceStart);
+    printVector(IM * face.facePoint);
+    fmat4 fIM = fmat4(IM);
+
+    glUniformMatrix4fv(faceIMLoc, 1, GL_FALSE, &fIM[0][0]);
+    glUniform4f(faceColorLoc, face.faceColor[0], face.faceColor[1], face.faceColor[2], 1);
+    fvec4 center = fvec4 (face.faceCenter);
+    glUniform4fv(faceCenterLoc, 1, &center[0]);
+    fvec4 start = fvec4 (face.faceStart);
+    glUniform4fv(faceStartLoc, 1, &start[0]);
+    glUniform1f(faceRadLoc, (float)face.faceRad);
+    return face.faceIndex;
 }
 
 void setPlayer (dmat4 coord) {

@@ -1,0 +1,7 @@
+#pragma once
+
+#define PGS_FRAGMENT_SHADER_NAME "../src/shader.frag"
+#define PGS_SHADER_FILE_SIZE 8000
+#define PGS_START_WINDOW_WIDTH 1000
+#define PGS_START_WINDOW_HEIGHT 1000
+#define PGS_EPSILON 0.001

@@ -1,8 +1,8 @@
 #include <glm/glm.hpp>
 #include <iostream>
-#include "render.h"
-#include "figure.h"
-#include "shaderManager.h"
+#include "render.hpp"
+#include "shaderManager.hpp"
+#include "settings.hpp"
 
 glm::dvec2 hr = {.5 * PGS_START_WINDOW_WIDTH, .5 * PGS_START_WINDOW_HEIGHT};
 

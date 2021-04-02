@@ -2,7 +2,7 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include "settings.h"
+#include "settings.hpp"
 
 void renderLoad ();
 void renderLoop ();

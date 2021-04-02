@@ -1,19 +1,19 @@
 cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
 
-set(PROJECT_NAME ProjGame)
+set(PROJECT_NAME ProjGame2)
 project(${PROJECT_NAME})
 
 add_executable(${PROJECT_NAME}
             src/main.cpp
-            src/settings.h
+            src/settings.hpp
+            src/shaderManager.hpp
             src/shaderManager.cpp
-            src/shaderManager.h
+            src/render.hpp
             src/render.cpp
-            src/render.h
-            src/figure.cpp
-            src/figure.h
+            src/inputs.hpp
             src/inputs.cpp
-            src/inputs.h
+            src/face.hpp
+            src/face.cpp
             )
 
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)

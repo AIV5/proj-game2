@@ -4,9 +4,10 @@
 #include <random>
 #include <chrono>
 #include <iostream>
-#include "render.h"
-#include "shaderManager.h"
-#include "inputs.h"
+#include <cmath>
+#include "render.hpp"
+#include "shaderManager.hpp"
+#include "inputs.hpp"
 
 extern GLFWwindow* window;
 using glm::fvec3;
@@ -45,12 +46,6 @@ dmat4 rotMat () {
     m[1] = dvec4(0, c + v*x*x, v*y*x + s*z, c*z*x - s*y);
     m[2] = dvec4(0, v*x*y - s*z, c + v*y*y, v*z*y + s*x);
     m[3] = dvec4(0, v*x*z + s*y, v*y*z - s*x, c + v*z*z);
-    /*
-    std::cout << "ax:\n";
-    printVector(dvec4(0, ax));
-    std::cout << "R:\n";
-    printMatrix(m);
-    */
     return player * m * transpose(player);
 }
 
@@ -81,26 +76,24 @@ void init (void) {
     renderLoad();   // this must be the first, I think
     glfwSetKeyCallback(window, keyCallback);
     srand(42);
-    for (int i = 0; i < 3; ++i) {
-        Figure dot = Figure(rand3(), rand4());
-        regFig(dot);
-        Figure line = Figure(rand3(), rand4(), rand4());
-        regFig(line);
-        Figure circle = Figure(BOUND, prand(), rand3(), rand4(), rand4(), rand4());
-        regFig(circle);
-        Figure sphere = Figure(LIMITED, prand(), rand3(), rand4(), rand4(), rand4(), rand4());
-        regFig(sphere);
-    }
+    double rad = 0.8;
     /*
-    Figure dot = Figure(vec3(1, 0, 1), dvec4(0, 0, 0.1, 1));
-    regFig(dot);
-    Figure red_line = Figure(vec3(1, 0, 0), dvec4(0, 0, 0.3, 1), dvec4(0, 1, 0.1, 0));
-    regFig(red_line);
-    Figure green_line = Figure(vec3(0, 1, 0), dvec4(0.1, 0, 0.3, .5), dvec4(0, .1, 0.4, 1));
-    regFig(green_line);
-    Figure yellow_circle = Figure(BOUND, 0.3, vec3(1, 1, 0), dvec4(0, 0, -0.1, 1), dvec4(.7, 0, .7, 0), dvec4(0, 1, 0, 0));
-    regFig(yellow_circle);
+    Face f0 = Face(fvec3(0, 0, 1), 4, dvec4(0, 0, 0, 1), dvec4(0, 1, 0, 0), dvec4(0, 0, 1, 0), 1);
+    regFace(f0);
     */
+    Face f1 = Face(fvec3(1, 0, 0), 4, dvec4(0, 0, -1, 1), dvec4(1, -1, -1, 1), dvec4(1, 1, -1, 1), rad);
+    regFace(f1);
+    Face f2 = Face(fvec3(0, 1, 0), 4, dvec4(1, 0, 0, 1), dvec4(1, -1, 1, 1), dvec4(1, 1, 1, 1), rad);
+    regFace(f2);
+    Face f3 = Face(fvec3(0, 0, 1), 4, dvec4(0, 1, 0, 1), dvec4(1, 1, 1, 1), dvec4(-1, 1, 1, 1), rad);
+    regFace(f3);
+
+    Face f4 = Face(fvec3(0, 1, 1), 4, dvec4(0, 0, 1, 1), dvec4(1, -1, 1, 1), dvec4(1, 1, 1, 1), rad);
+    regFace(f4);
+    Face f5 = Face(fvec3(1, 0, 1), 4, dvec4(-1, 0, 0, 1), dvec4(-1, -1, 1, 1), dvec4(-1, 1, 1, 1), rad);
+    regFace(f5);
+    Face f6 = Face(fvec3(1, 1, 0), 4, dvec4(0, -1, 0, 1), dvec4(1, -1, 1, 1), dvec4(-1, -1, 1, 1), rad);
+    regFace(f6);
 }
 
 void loop (void) {
@@ -116,13 +109,6 @@ void loop (void) {
     auto elapsed_ms = std::chrono::duration<double>(end - begin);
     deltaTime = std::chrono::duration<double>(elapsed_ms).count();
     // std::cout << "fps: " << 1/deltaTime << '\n';
-    //sleep(1);
-    /*
-    std::cout << '\n';
-    printVector(player[0]);
-    std::cout << '\n';
-    printMatrix(player * transpose(player));
-    */
 }
 
 int main(void)

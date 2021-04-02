@@ -1,4 +1,4 @@
-#include "inputs.h"
+#include "inputs.hpp"
 #include <iostream>
 
 
@@ -55,7 +55,7 @@ double getMov(dvec3 &ax) {
     if (glm::length(ax) == 0)
         return 0;
     ax = glm::normalize(ax);
-    return .5;
+    return 2;
 }
 
 double getRot(dvec3 &ax) {
@@ -63,5 +63,5 @@ double getRot(dvec3 &ax) {
     if (glm::length(ax) == 0)
         return 0;
     ax = glm::normalize(ax);
-    return .5;
+    return 2;
 }
