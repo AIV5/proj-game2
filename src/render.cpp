@@ -22,7 +22,8 @@ void renderLoad () {
         std::cout << "Can't load glad\n";
         exit(-1);
     }
-    std::cout << "OpenGL " << GLVersion.major << "." << GLVersion.minor << '\n';
+    std::cout << "Renderer: " << glGetString(GL_RENDERER) << '\n';
+    std::cout << "OpenGL version: " << glGetString(GL_VERSION) << '\n';
     glfwSetWindowSizeCallback(window, changeSize);
     prog = loadProgram();
     glUseProgram(prog);
@@ -41,6 +42,7 @@ void renderLoad () {
 }
 
 void renderLoop () {
+    glClear(GL_COLOR_BUFFER_BIT);
     glDrawArrays(GL_QUADS, 0, 4);
     glfwSwapBuffers(window);
     glfwPollEvents();

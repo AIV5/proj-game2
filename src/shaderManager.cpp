@@ -14,7 +14,7 @@ void _errorDegenerate () {
     exit(-1);
 }
 
-void loadShader (char *fileName, GLuint shader) {
+void loadShader (const char fileName[], GLuint shader) {
     char* code = (char *)malloc(PGS_SHADER_FILE_SIZE);
     memset(code, 0, PGS_SHADER_FILE_SIZE);
     FILE *fin = fopen(fileName, "rb");
@@ -59,7 +59,7 @@ GLuint loadProgram () {
     return prog;
 }
 
-GLuint getArrayLoc (char* name, int index) {
+GLuint getArrayLoc (const char name[], int index) {
     char text [32];
     sprintf(text, "%s[%d]", name, index);
     return glGetUniformLocation(prog, text);
