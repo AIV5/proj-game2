@@ -16,13 +16,17 @@ void _errorDegenerate () {
 
 void loadShader (const char fileName[], GLuint shader) {
     char* code = (char *)malloc(PGS_SHADER_FILE_SIZE);
+    if (code == nullptr) {
+        std::cerr << "Error when loading shader. Can't allocate memory\n";
+        exit(-1);
+    }
     memset(code, 0, PGS_SHADER_FILE_SIZE);
     FILE *fin = fopen(fileName, "rb");
     if (fin) {
         fread(code, 1, PGS_SHADER_FILE_SIZE, fin);
         fclose(fin);
     } else {
-        std::cout << "Error when loading shader. File " << fileName << " not found\n";
+        std::cerr << "Error when loading shader. File " << fileName << " not found\n";
         free(code);
         exit(-1);
     }
@@ -35,7 +39,7 @@ void loadShader (const char fileName[], GLuint shader) {
     glGetShaderiv(shader, GL_COMPILE_STATUS, &ok);
     if (!ok) {
         glGetShaderInfoLog(shader, 2000, NULL, log);
-        std::cout << "Error when compiling shader " << fileName << "\nlog:\n" << log << "\n";
+        std::cerr << "Error when compiling shader " << fileName << "\nlog:\n" << log << "\n";
         exit(-1);
     }
 }
@@ -53,7 +57,7 @@ GLuint loadProgram () {
     glGetProgramiv(prog, GL_LINK_STATUS, &ok);
     if (!ok) {
         glGetProgramInfoLog(prog, 2000, NULL, log);
-        std::cout << "Error when linking program\nlog:\n" << log << "\n";
+        std::cerr << "Error when linking program\nlog:\n" << log << "\n";
         exit(-1);
     }
     return prog;

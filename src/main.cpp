@@ -56,22 +56,6 @@ void repair (dmat4 &m) {
     m[3] = normalize(m[3] - m[0] * dot(m[0], m[3]) - m[1] * dot(m[1], m[3]) - m[2] * dot(m[2], m[3]));
 }
 
-double drand() {
-    return (double) (2 * rand() - 1) / RAND_MAX;
-}
-
-double prand() {
-    return (double) rand() / RAND_MAX / 4;
-}
-
-fvec3 rand3() {
-    return glm::normalize(fvec3(prand(), prand(), prand()));
-}
-
-dvec4 rand4() {
-    return glm::normalize(dvec4(drand(), drand(), drand(), drand()));
-}
-
 void init (void) {
     renderLoad();   // this must be the first, I think
     glfwSetKeyCallback(window, keyCallback);
