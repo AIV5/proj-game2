@@ -47,8 +47,8 @@ void renderLoop () {
 }
 
 void sendResolution () {
-    GLuint hr_loc = glGetUniformLocation(prog, "hr");
-    glUniform2f(hr_loc, (float)hr.x, (float)hr.y);
+    GLuint hrLoc = glGetUniformLocation(prog, "hr");
+    glUniform2f(hrLoc, (float)hr.x, (float)hr.y);
 }
 
 void changeSize (GLFWwindow* _, int w, int h) {

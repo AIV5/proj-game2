@@ -5,49 +5,58 @@
 int movKeys[6];
 int rotKeys[6];
 
-void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-    if (key == GLFW_KEY_D && action == GLFW_REPEAT | GLFW_PRESS)
+void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+    if (key == GLFW_KEY_D && action == GLFW_PRESS)
         movKeys[Rf] = 1;
-    if (key == GLFW_KEY_A && action == GLFW_REPEAT | GLFW_PRESS)
+    if (key == GLFW_KEY_A && action == GLFW_PRESS)
         movKeys[Rb] = 1;
-    if (key == GLFW_KEY_SPACE && action == GLFW_REPEAT | GLFW_PRESS)
+    if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
         movKeys[Uf] = 1;
-    if (key == GLFW_KEY_LEFT_SHIFT && action == GLFW_REPEAT | GLFW_PRESS)
+    if (key == GLFW_KEY_LEFT_SHIFT && action == GLFW_PRESS)
         movKeys[Ub] = 1;
-    if (key == GLFW_KEY_W && action == GLFW_REPEAT | GLFW_PRESS)
+    if (key == GLFW_KEY_W && action == GLFW_PRESS)
         movKeys[Ff] = 1;
-    if (key == GLFW_KEY_S && action == GLFW_REPEAT | GLFW_PRESS)
+    if (key == GLFW_KEY_S && action == GLFW_PRESS)
         movKeys[Fb] = 1;
 
-    if (key == GLFW_KEY_DOWN && action == GLFW_REPEAT | GLFW_PRESS)
+    if (key == GLFW_KEY_DOWN && action == GLFW_PRESS)
         rotKeys[Rf] = 1;
-    if (key == GLFW_KEY_UP && action == GLFW_REPEAT | GLFW_PRESS)
+    if (key == GLFW_KEY_UP && action == GLFW_PRESS)
         rotKeys[Rb] = 1;
-    if (key == GLFW_KEY_RIGHT && action == GLFW_REPEAT | GLFW_PRESS)
+    if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS)
         rotKeys[Uf] = 1;
-    if (key == GLFW_KEY_LEFT && action == GLFW_REPEAT | GLFW_PRESS)
+    if (key == GLFW_KEY_LEFT && action == GLFW_PRESS)
         rotKeys[Ub] = 1;
-    if (key == GLFW_KEY_PAGE_DOWN && action == GLFW_REPEAT | GLFW_PRESS)
+    if (key == GLFW_KEY_PAGE_DOWN && action == GLFW_PRESS)
         rotKeys[Ff] = 1;
-    if (key == GLFW_KEY_DELETE && action == GLFW_REPEAT | GLFW_PRESS)
+    if (key == GLFW_KEY_DELETE && action == GLFW_PRESS)
         rotKeys[Fb] = 1;
-}
 
-void flushKeys () {
-    movKeys[0] = 0;
-    movKeys[1] = 0;
-    movKeys[2] = 0;
-    movKeys[3] = 0;
-    movKeys[4] = 0;
-    movKeys[5] = 0;
+    if (key == GLFW_KEY_D && action == GLFW_RELEASE)
+        movKeys[Rf] = 0;
+    if (key == GLFW_KEY_A && action == GLFW_RELEASE)
+        movKeys[Rb] = 0;
+    if (key == GLFW_KEY_SPACE && action == GLFW_RELEASE)
+        movKeys[Uf] = 0;
+    if (key == GLFW_KEY_LEFT_SHIFT && action == GLFW_RELEASE)
+        movKeys[Ub] = 0;
+    if (key == GLFW_KEY_W && action == GLFW_RELEASE)
+        movKeys[Ff] = 0;
+    if (key == GLFW_KEY_S && action == GLFW_RELEASE)
+        movKeys[Fb] = 0;
 
-    rotKeys[0] = 0;
-    rotKeys[1] = 0;
-    rotKeys[2] = 0;
-    rotKeys[3] = 0;
-    rotKeys[4] = 0;
-    rotKeys[5] = 0;
+    if (key == GLFW_KEY_DOWN && action == GLFW_RELEASE)
+        rotKeys[Rf] = 0;
+    if (key == GLFW_KEY_UP && action == GLFW_RELEASE)
+        rotKeys[Rb] = 0;
+    if (key == GLFW_KEY_RIGHT && action == GLFW_RELEASE)
+        rotKeys[Uf] = 0;
+    if (key == GLFW_KEY_LEFT && action == GLFW_RELEASE)
+        rotKeys[Ub] = 0;
+    if (key == GLFW_KEY_PAGE_DOWN && action == GLFW_RELEASE)
+        rotKeys[Ff] = 0;
+    if (key == GLFW_KEY_DELETE && action == GLFW_RELEASE)
+        rotKeys[Fb] = 0;
 }
 
 double getMov(dvec3 &ax) {

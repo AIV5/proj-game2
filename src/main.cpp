@@ -106,7 +106,6 @@ void loop (void) {
     player = movMat() * player;
     repair(player);
     setPlayer(player);
-    flushKeys();
     renderLoop();   // this must be the last, I think
     auto end = std::chrono::high_resolution_clock::now();
     auto elapsed_ms = std::chrono::duration<double>(end - begin);

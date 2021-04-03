@@ -37,7 +37,7 @@ float gauss (mat4 matrix) {
             matrix[c][e] = tmp / mv;
         }
         for (r = e+1; r < 4; ++r) // sub: r is column index (i.e. number of row)
-            for (c = 3; c >= 3; --c) // c is row index (i.e. number of column)
+            for (c = e+1; c < 4; ++c) // c is row index (i.e. number of column)
                 matrix[c][r] -= matrix[c][e] * matrix[e][r];
     }
     return matrix[3][2];
