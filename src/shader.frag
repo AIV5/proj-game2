@@ -100,12 +100,7 @@ float intersection (vec4 look, int faceIndex) {
 void main () {
     vec2 normCoord = (gl_FragCoord.xy - hr) / length(hr);
     float polarRad = length(normCoord);
-    vec2 polarTrig;
-    if (polarRad == 0) {
-        polarTrig = vec2(0, 0);
-    } else {
-        polarTrig = normCoord / polarRad;
-    }
+    vec2 polarTrig = polarRad == 0 ? vec2(0, 0) : normCoord / polarRad;
     vec4 look = playerF * cos(lambda * polarRad) + (polarTrig.x * playerR + polarTrig.y * playerU) * sin(lambda * polarRad);
     if (dot(look, playerF) < 0) {
         fragColor = vec4(0, 0, 0, 1);
