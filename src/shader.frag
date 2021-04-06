@@ -20,6 +20,8 @@ uniform vec4  [MAX_FACES] facePoint;
 uniform float [MAX_FACES] faceRad;
 
 vec4 intersectionPoint;
+bool gaussFail = false;
+bool allFail = true;
 
 float gauss (mat4 matrix) {
     int r, c, e, m; // row num, column num, element num, max index
@@ -40,6 +42,7 @@ float gauss (mat4 matrix) {
             for (c = e+1; c < 4; ++c) // c is row index (i.e. number of column)
                 matrix[c][r] -= matrix[c][e] * matrix[e][r];
     }
+    gaussFail = abs(matrix[3][3]) > 0.001;
     return matrix[3][2];
 }
 
@@ -110,7 +113,8 @@ void main () {
     int indexMin;
     for (int faceIndex = 0; faceIndex < faceNumber; ++faceIndex) {
         IRCur = intersection(look, faceIndex);
-        if (IRCur > 1)
+        allFail = allFail && gaussFail;
+        if (gaussFail || IRCur > 1)
             continue;
         dCur = projDist(playerP, intersectionPoint);
         if (dot(playerP, intersectionPoint) * dot(look, intersectionPoint) < 0)
@@ -124,6 +128,6 @@ void main () {
     if (dMin < 2 * pi) {
         fragColor = faceColor[indexMin] - .25 * IRMin;
     } else {
-        fragColor = vec4(.25, .25, .25, 1);
+        fragColor = allFail ? vec4(1, 1, 1, 1) : vec4(.25, .25, .25, 1);
     }
 }
