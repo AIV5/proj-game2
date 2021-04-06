@@ -7,7 +7,6 @@
 
 extern GLuint prog;
 int faceCount = 0;
-const dvec4 _nullVec = dvec4(0);
 
 void _errorDegenerate () {
     std::cerr << "Error when constructing a face. Degenerate vector sistem was given.\n";
@@ -80,37 +79,6 @@ void printVector (dvec4 v) {
     std::cout << v[0] << ' ' << v[1] << ' ' << v[2] << ' ' << v[3] << '\n';
 }
 
-void _orthonormalize (dvec4 &target, const dvec4 &u=_nullVec, const dvec4 &v=_nullVec) {
-    if (glm::length(target) < PGS_EPSILON)
-        _errorDegenerate();
-    target = glm::normalize(target);
-    target -= v * glm::dot(target, v) + u * glm::dot(target, u);
-    if (glm::length(target) < PGS_EPSILON)
-        _errorDegenerate();
-    target = glm::normalize(target);
-}
-
-dvec4 _getOrtAdd (dvec4 &p, dvec4 &r, dvec4 &u) {
-    dvec4 maxVec = dvec4(0);
-    dvec4 curVec;
-    for (int i = 0; i < 4; ++i) {
-        curVec = dvec4(0);
-        curVec[i] = 1;
-        curVec -= p * glm::dot(p, curVec) + r * glm::dot(r, curVec) + u * glm::dot(u, curVec);
-        if (glm::length(curVec) > glm::length(maxVec))
-            maxVec = curVec;
-    }
-    return glm::normalize(maxVec);
-}
-
-fmat4 _getIM (dvec4 p, dvec4 r, dvec4 u) {
-    _orthonormalize(p);
-    _orthonormalize(r, p);
-    _orthonormalize(u, r, p);
-    dvec4 f = _getOrtAdd(p, r, u);
-    return glm::transpose(fmat4(p, r, u, f));
-}
-
 int regFace (Face &face) {
     face.faceIndex = faceCount;
     GLuint faceNumberLoc = glGetUniformLocation(prog, "faceNumber");
@@ -122,8 +90,6 @@ int regFace (Face &face) {
     GLuint faceRadLoc = getArrayLoc("faceRad", faceCount);
     ++faceCount;
     glUniform1i(faceNumberLoc, faceCount);
-    fmat4 fIM = _getIM(face.faceCenter, face.faceStart, face.facePoint);
-    glUniformMatrix4fv(faceIMLoc, 1, GL_FALSE, &fIM[0][0]);
     glUniform4f(faceColorLoc, face.faceColor[0], face.faceColor[1], face.faceColor[2], 1);
     fvec4 center = fvec4 (face.faceCenter);
     glUniform4fv(faceCenterLoc, 1, &center[0]);
@@ -133,8 +99,6 @@ int regFace (Face &face) {
     glUniform4fv(facePointLoc, 1, &point[0]);
     glUniform1f(faceRadLoc, (float)face.faceRad);
 
-    std::cout << "IM:\n";
-    printMatrix(fIM);
     std::cout << "center: ";
     printVector(center);
     std::cout << "start: ";

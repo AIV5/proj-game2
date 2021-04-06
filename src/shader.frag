@@ -1,10 +1,9 @@
 #version 460
 
-#define MAX_FACES 32
-
-float pi = acos(-1);
-float lambda = 2;
-int vertexNumber = 4;
+const int MAX_FACES = 32;
+const float pi = acos(-1);
+const float lambda = 2;
+const int vertexNumber = 4;
 
 out vec4 fragColor;
 
@@ -12,7 +11,6 @@ uniform vec2 hr;
 uniform vec4 playerP, playerR, playerU, playerF; // position, right, up, forward
 
 uniform int   faceNumber;
-uniform mat4  [MAX_FACES] faceIM; // inverse matrix
 uniform vec4  [MAX_FACES] faceColor;
 uniform vec4  [MAX_FACES] faceCenter;
 uniform vec4  [MAX_FACES] faceStart;
@@ -20,57 +18,12 @@ uniform vec4  [MAX_FACES] facePoint;
 uniform float [MAX_FACES] faceRad;
 
 vec4 intersectionPoint;
-bool gaussFail = false;
-bool allFail = true;
-
-float gauss (mat4 matrix) {
-    int r, c, e, m; // row num, column num, element num, max index
-    float tmp, mv;
-    for (e = 0; e < 3; ++e) { // first 3 elements
-        m = e; // m is column index (i.e. number of row)
-        for (r = e+1; r < 4; ++r) // for rows: find max element in column
-            if (abs(matrix[e][r]) > abs(matrix[e][m]))
-                m = r;
-        // now matrix[e][m] is max in the column
-        mv = matrix[e][m];
-        for (c = e; c < 4; ++c) { // swap and divide, r is row index (i.e. number of conumn)
-            tmp = matrix[c][m];
-            matrix[c][m] = matrix[c][e];
-            matrix[c][e] = tmp / mv;
-        }
-        for (r = e+1; r < 4; ++r) // sub: r is column index (i.e. number of row)
-            for (c = e+1; c < 4; ++c) // c is row index (i.e. number of column)
-                matrix[c][r] -= matrix[c][e] * matrix[e][r];
-    }
-    gaussFail = abs(matrix[3][3]) > 0.001;
-    return matrix[3][2];
-}
 
 float projDist (vec4 a, vec4 b) {
     float prod = abs(dot(a, b));
     if (prod > 1)
         return 0;
     return acos(prod);
-}
-
-float projAngle (vec4 center, vec4 a, vec4 b) {
-    a = normalize(a - center * dot(center, a));
-    b = normalize(b - center * dot(center, b));
-    float prod = dot(a, b);
-    if (abs(prod) > 1)
-        return 0;
-    return acos(prod);
-}
-
-float poligonRadCoef (float alpha) {
-    float phi = 2 * pi / vertexNumber;
-    while (alpha > phi)
-        alpha -= phi;
-    while (alpha < 0)
-        alpha += phi;
-    float c1 = cos(phi), s1 = sin(phi);
-    float c2 = cos(alpha), s2 = sin(alpha);
-    return s1 / (s2 + c2*s1 - s2*c1);
 }
 
 float angle (vec4 center, vec4 a, vec4 b) {
@@ -88,15 +41,25 @@ float angle (vec4 center, vec4 a, vec4 b) {
     return acos(prod);
 }
 
+float poligonRadCoef (float alpha) {
+    float phi = 2 * pi / vertexNumber;
+    while (alpha > phi)
+        alpha -= phi;
+    float c1 = cos(phi), s1 = sin(phi);
+    float c2 = cos(alpha), s2 = sin(alpha);
+    return s1 / (s2 + c2*s1 - s2*c1);
+}
+
 float intersection (vec4 look, int faceIndex) {
-    intersectionPoint = look * (faceIM[faceIndex] * playerP).w - playerP * (faceIM[faceIndex] * look).w;
-    if (length(intersectionPoint) == 0)
+    mat4 m = mat4(faceCenter[faceIndex] - faceStart[faceIndex], faceCenter[faceIndex] - facePoint[faceIndex], playerP, look);
+    if (determinant(m) == 0)
         return 2;
-    vec4 p = intersectionPoint * gauss(mat4(faceStart[faceIndex] - faceCenter[faceIndex], facePoint[faceIndex] - faceCenter[faceIndex], intersectionPoint, faceCenter[faceIndex]));
+    vec4 sol = inverse(m) * faceCenter[faceIndex];
+    vec4 p = playerP * sol.z + look * sol.w;
     if (length(p) == 0)
         return 2;
+    intersectionPoint = normalize(p);
     float poligonRad = faceRad[faceIndex] * poligonRadCoef(angle(faceCenter[faceIndex], p, faceStart[faceIndex]));
-    intersectionPoint = normalize(intersectionPoint);
     return distance(p, faceCenter[faceIndex]) / poligonRad;
 }
 
@@ -113,8 +76,7 @@ void main () {
     int indexMin;
     for (int faceIndex = 0; faceIndex < faceNumber; ++faceIndex) {
         IRCur = intersection(look, faceIndex);
-        allFail = allFail && gaussFail;
-        if (gaussFail || IRCur > 1)
+        if (IRCur > 1)
             continue;
         dCur = projDist(playerP, intersectionPoint);
         if (dot(playerP, intersectionPoint) * dot(look, intersectionPoint) < 0)
@@ -128,6 +90,6 @@ void main () {
     if (dMin < 2 * pi) {
         fragColor = faceColor[indexMin] - .25 * IRMin;
     } else {
-        fragColor = allFail ? vec4(1, 1, 1, 1) : vec4(.25, .25, .25, 1);
+        fragColor = vec4(.25, .25, .25, 1);
     }
 }

@@ -1,10 +1,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
-#include <random>
 #include <chrono>
 #include <iostream>
-#include <cmath>
 #include "render.hpp"
 #include "shaderManager.hpp"
 #include "inputs.hpp"
@@ -59,7 +57,6 @@ void repair (dmat4 &m) {
 void init (void) {
     renderLoad();   // this must be the first, I think
     glfwSetKeyCallback(window, keyCallback);
-    srand(42);
     double rad = sqrt(.5);
 
     Face f1 = Face(fvec3(1, 0, 0), 4, dvec4(0, 0, -1, 1)  * .5, dvec4(1, -1, -1, 1) * .5, dvec4(1, 1, -1, 1) * .5, rad);
@@ -99,10 +96,8 @@ void loop (void) {
 
 int main(void) {
     init();
-    while (!exitCondition()) {
+    while (!exitCondition())
         loop();
-    }
-
     glfwTerminate();
     return 0;
 }
