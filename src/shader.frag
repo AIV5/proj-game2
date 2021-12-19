@@ -1,66 +1,100 @@
 #version 460
 
 const int MAX_FACES = 32;
+const int MAX_VERT = 10;
 const float pi = acos(-1);
 const float lambda = 2;
-const int vertexNumber = 4;
 
 out vec4 fragColor;
 
 uniform vec2 hr;
-uniform vec4 playerP, playerR, playerU, playerF; // position, right, up, forward
+uniform vec4 playerP, playerR, playerU, playerF;// position, right, up, forward
 
 uniform int   faceNumber;
 uniform vec4  [MAX_FACES] faceColor;
-uniform vec4  [MAX_FACES] faceCenter;
-uniform vec4  [MAX_FACES] faceStart;
-uniform vec4  [MAX_FACES] facePoint;
-uniform float [MAX_FACES] faceRad;
+uniform int   [MAX_FACES] faceVertNum;
+uniform vec4  [MAX_FACES][MAX_VERT] faceVert;
 
 vec4 intersectionPoint;
+bool signal = false;
 
 float projDist (vec4 a, vec4 b) {
     float prod = abs(dot(a, b));
-    if (prod > 1)
+    if (prod > 1) {
         return 0;
+    }
     return acos(prod);
 }
 
 float angle (vec4 center, vec4 a, vec4 b) {
     a -= center;
-    if (length(a) == 0)
+    if (length(a) == 0) {
         return 0;
+    }
     a = normalize(a);
     b -= center;
-    if (length(b) == 0)
+    if (length(b) == 0) {
         return 0;
+    }
     b = normalize(b);
     float prod = dot(a, b);
-    if (abs(prod) > 1)
+    if (abs(prod) > 1) {
         return 0;
+    }
     return acos(prod);
 }
 
-float poligonRadCoef (float alpha) {
-    float phi = 2 * pi / vertexNumber;
-    while (alpha > phi)
-        alpha -= phi;
-    float c1 = cos(phi), s1 = sin(phi);
-    float c2 = cos(alpha), s2 = sin(alpha);
-    return s1 / (s2 + c2*s1 - s2*c1);
+bool is_inside (vec4 left, vec4 test, vec4 right) {
+    float a = projDist(left, test);
+    float b = projDist(test, right);
+    float c = projDist(left, right);
+    float ab = abs(a + b - c);
+    float ac = abs(a - b + c);
+    float bc = abs(-a + b + c);
+    float lp = abs(a + b + c - pi);
+    if (ab > .01 && ac > .01 && bc > .01 && lp > .01) {
+        if (lp < .01) {
+            fragColor = vec4(1, 1, 0, 1);
+        } else {
+            fragColor = vec4(1, 0, 0, 1);
+        }
+//        fragColor = vec4(abs(a + b + c - pi), abs(a + b - c), 0, 1);
+        signal = true;
+        return true;
+    }
+    return ab < 1e-3; //ab < ac && ab < bc && ab < lp;
 }
 
-float intersection (vec4 look, int faceIndex) {
-    mat4 m = mat4(faceCenter[faceIndex] - faceStart[faceIndex], faceCenter[faceIndex] - facePoint[faceIndex], playerP, look);
-    if (determinant(m) == 0)
-        return 2;
-    vec4 sol = inverse(m) * faceCenter[faceIndex];
-    vec4 p = playerP * sol.z + look * sol.w;
-    if (length(p) == 0)
-        return 2;
+bool intersection (vec4 look, int faceIndex) {
+    mat4 m = mat4(faceVert[faceIndex][0], faceVert[faceIndex][1], faceVert[faceIndex][2], playerP);
+    if (determinant(m) == 0) {
+        return false;
+    }
+    vec4 sol = inverse(m) * look;
+    vec4 p = look - playerP * sol.w;
+    if (length(p) == 0) {
+        return false;
+    }
     intersectionPoint = normalize(p);
-    float poligonRad = faceRad[faceIndex] * poligonRadCoef(angle(faceCenter[faceIndex], p, faceStart[faceIndex]));
-    return distance(p, faceCenter[faceIndex]) / poligonRad;
+    vec4 linesPoint;
+    for (int i = 1; i < faceVertNum[faceIndex] - 1; ++i) {
+        m = mat4(faceVert[faceIndex][0], faceVert[faceIndex][i], faceVert[faceIndex][i+1], playerP);
+        if (determinant(m) == 0) {
+            fragColor = vec4(1, 0, 0, 1);
+            signal = true;
+            return false;
+        }
+        sol = inverse(m) * intersectionPoint;
+        linesPoint = sol.y * faceVert[faceIndex][i] + sol.z * faceVert[faceIndex][i+1];
+        if (length(linesPoint) == 0) {
+            return false;
+        }
+        linesPoint = normalize(linesPoint);
+        if (is_inside(faceVert[faceIndex][i], linesPoint, faceVert[faceIndex][i+1])) {
+            return is_inside(faceVert[faceIndex][0], intersectionPoint, linesPoint);
+        }
+    }
+    return false;
 }
 
 void main () {
@@ -72,23 +106,31 @@ void main () {
         fragColor = vec4(0, 0, 0, 1);
         return;
     }
-    float dMin = 2 * pi, dCur, IRCur, IRMin;
+    float dMin = 2 * pi, dCur;
     int indexMin;
+    if (faceNumber == 0) {
+        fragColor = vec4(.5, .2, .7, 1);
+        return;
+    }
     for (int faceIndex = 0; faceIndex < faceNumber; ++faceIndex) {
-        IRCur = intersection(look, faceIndex);
-        if (IRCur > 1)
+        bool intersect = intersection(look, faceIndex);
+        if (signal) {
+            return;
+        }
+        if (!intersect) {
             continue;
+        }
         dCur = projDist(playerP, intersectionPoint);
-        if (dot(playerP, intersectionPoint) * dot(look, intersectionPoint) < 0)
-                dCur = pi - dCur;
+        if (dot(playerP, intersectionPoint) * dot(look, intersectionPoint) < 0) {
+            dCur = pi - dCur;
+        }
         if (dCur < dMin) {
             dMin = dCur;
-            IRMin = IRCur;
             indexMin = faceIndex;
         }
     }
     if (dMin < 2 * pi) {
-        fragColor = faceColor[indexMin] - .25 * IRMin;
+        fragColor = faceColor[indexMin];// - .1 * dMin;
     } else {
         fragColor = vec4(.25, .25, .25, 1);
     }

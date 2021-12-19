@@ -49,7 +49,7 @@ void renderLoop () {
 }
 
 void sendResolution () {
-    GLuint hrLoc = glGetUniformLocation(prog, "hr");
+    auto hrLoc = glGetUniformLocation(prog, "hr");
     glUniform2f(hrLoc, (float)hr.x, (float)hr.y);
 }
 

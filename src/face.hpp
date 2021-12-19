@@ -1,20 +1,18 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include <vector>
 
 using glm::fvec3;
-using glm::dvec4;
+using glm::fvec4;
 using glm::dmat4;
+using std::vector;
 
 class Face {
 public:
     int faceIndex;
     fvec3 faceColor;
-    int faceVertexNumber;
-    dvec4 faceCenter;
-    dvec4 faceStart;
-    dvec4 facePoint;
-    double faceRad;
-    Face(void);
-    Face(fvec3 color, int n, dvec4 center, dvec4 start, dvec4 point, double rad);
+    vector<fvec4> faceVert;
+    Face();
+    Face(fvec3 color, vector<fvec4> &vertexes);
 };
