@@ -55,23 +55,138 @@ void repair(dmat4 &m) {
     m[3] = normalize(m[3] - m[0] * dot(m[0], m[3]) - m[1] * dot(m[1], m[3]) - m[2] * dot(m[2], m[3]));
 }
 
+static void mk_face(double rad, int n, fvec3 color) {
+    vector<fvec4> vertexes(n);
+    double phi = 2 * std::numbers::pi / n;
+    for (int i = 0; i < n; ++i) {
+        vertexes[i] = fvec4(0, sin(rad) * cos(phi * i), sin(rad) * sin(phi * i), cos(rad));
+    }
+    auto f1 = Face(color, vertexes);
+    regFace(f1);
+}
+
+static void mk_334() {
+    vector<fvec4> vertexes(3);
+
+    vertexes = {fvec4(0, 1, 0, 0), fvec4(0, 0, 1, 0), fvec4(0, 0, 0, 1)};
+    auto f = Face(fvec3(1, 0, 0), vertexes);
+    regFace(f);
+    vertexes = {fvec4(1, 0, 0, 0), fvec4(0, 0, 1, 0), fvec4(0, 0, 0, 1)};
+    f = Face(fvec3(0, 1, 0), vertexes);
+    regFace(f);
+
+    vertexes = {fvec4(1, 0, 0, 0), fvec4(0, 1, 0, 0), fvec4(0, 0, 0, 1)};
+    f = Face(fvec3(0, 0, 1), vertexes);
+    regFace(f);
+
+    vertexes = {fvec4(1, 0, 0, 0), fvec4(0, 1, 0, 0), fvec4(0, 0, 1, 0)};
+    f = Face(fvec3(.5, 0, .5), vertexes);
+    regFace(f);
+
+    Sphere s = Sphere(fvec3(1, 1, 1), fvec4(.5, .5, .5, .5), 0.03);
+    regSphere(s);
+    s = Sphere(fvec3(.5, 0, 0), fvec4(.5, -.5, .5, .5), 0.03);
+    regSphere(s);
+    s = Sphere(fvec3(0, .5, 0), fvec4(.5, .5, -.5, .5), 0.03);
+    regSphere(s);
+    s = Sphere(fvec3(0, 0, .5), fvec4(.5, .5, .5, -.5), 0.03);
+    regSphere(s);
+
+    s = Sphere(fvec3(0, 0, 0), fvec4(.5, .5, -.5, -.5), 0.03);
+    regSphere(s);
+    s = Sphere(fvec3(.5, .5, 0), fvec4(.5, -.5, .5, -.5), 0.03);
+    regSphere(s);
+    s = Sphere(fvec3(0, .5, .5), fvec4(.5, -.5, -.5, .5), 0.03);
+    regSphere(s);
+    s = Sphere(fvec3(.5, 0, .5), fvec4(.5, -.5, -.5, -.5), 0.03);
+    regSphere(s);
+}
+
+static void mk_433() {
+    vector<fvec4> vertexes(4);
+    double a = .5;
+
+    // 0+
+    vertexes = {fvec4(a, a, a, a), fvec4(a, a, a, -a), fvec4(a, a, -a, -a), fvec4(a, a, -a, a)};
+    auto f = Face(fvec3(1, 0, 0), vertexes);
+    regFace(f);
+
+    vertexes = {fvec4(a, a, a, a), fvec4(a, a, a, -a), fvec4(a, -a, a, -a), fvec4(a, -a, a, a)};
+    f = Face(fvec3(0, 1, 0), vertexes);
+    regFace(f);
+
+    vertexes = {fvec4(a, a, a, a), fvec4(a, a, -a, a), fvec4(a, -a, -a, a), fvec4(a, -a, a, a)};
+    f = Face(fvec3(0, 0, 1), vertexes);
+    regFace(f);
+
+    // 0-
+    vertexes = {fvec4(-a, a, a, a), fvec4(-a, a, a, -a), fvec4(-a, a, -a, -a), fvec4(-a, a, -a, a)};
+    f = Face(fvec3(0, 1, 1), vertexes);
+    regFace(f);
+
+    vertexes = {fvec4(-a, a, a, a), fvec4(-a, a, a, -a), fvec4(-a, -a, a, -a), fvec4(-a, -a, a, a)};
+    f = Face(fvec3(1, 0, 1), vertexes);
+    regFace(f);
+
+    vertexes = {fvec4(-a, a, a, a), fvec4(-a, a, -a, a), fvec4(-a, -a, -a, a), fvec4(-a, -a, a, a)};
+    f = Face(fvec3(1, 1, 0), vertexes);
+    regFace(f);
+
+    Sphere s(fvec3(1, 1, 1), fvec4(1, 0, 0, 0), 0.03);
+    regSphere(s);
+
+    // 1+
+    vertexes = {fvec4(a, a, a, a), fvec4(a, a, a, -a), fvec4(-a, a, a, -a), fvec4(-a, a, a, a)};
+    f = Face(fvec3(.5, .6, .1), vertexes);
+    regFace(f);
+
+    vertexes = {fvec4(a, a, a, a), fvec4(a, a, -a, a), fvec4(-a, a, -a, a), fvec4(-a, a, a, a)};
+    f = Face(fvec3(.5, .1, .6), vertexes);
+    regFace(f);
+
+    // 1-
+    vertexes = {fvec4(a, -a, a, a), fvec4(a, -a, a, -a), fvec4(-a, -a, a, -a), fvec4(-a, -a, a, a)};
+    f = Face(fvec3(.6, .5, .1), vertexes);
+    regFace(f);
+
+    vertexes = {fvec4(a, -a, a, a), fvec4(a, -a, -a, a), fvec4(-a, -a, -a, a), fvec4(-a, -a, a, a)};
+    f = Face(fvec3(.1, .5, .6), vertexes);
+    regFace(f);
+
+    s = Sphere(fvec3(.5, .3, .3), fvec4(0, 1, 0, 0), 0.03);
+    regSphere(s);
+
+    // 2+
+    vertexes = {fvec4(a, a, a, a), fvec4(a, -a, a, a), fvec4(-a, -a, a, a), fvec4(-a, a, a, a)};
+    f = Face(fvec3(.6, .1, .5), vertexes);
+    regFace(f);
+
+    // 2-
+    vertexes = {fvec4(a, a, -a, a), fvec4(a, -a, -a, a), fvec4(-a, -a, -a, a), fvec4(-a, a, -a, a)};
+    f = Face(fvec3(.6, .1, .5), vertexes);
+    regFace(f);
+
+    s = Sphere(fvec3(.3, .5, .3), fvec4(0, 0, 1, 0), 0.03);
+    regSphere(s);
+
+    s = Sphere(fvec3(.3, .3, .5), fvec4(0, 0, 0, 1), 0.03);
+    regSphere(s);
+}
+/*
+static void mk_343() {
+    vector<fvec4> vertexes(4);
+    double a = .5;
+
+    vertexes = {fvec4(a, a, a, a), fvec4(a, a, a, -a), fvec4(a, a, -a, -a), fvec4(a, a, -a, a)};
+    auto f = Face(compRand4(0, 1), vertexes);
+    regFace(f);
+}
+*/
 void init() {
     renderLoad();   // this must be the first, I think
     glfwSetKeyCallback(window, keyCallback);
 
-    // Face f1 = Face(fvec3(1, 0, 0), 4, dvec4(0, 0, -1, 1)  * .5, dvec4(1, -1, -1, 1) * .5, dvec4(1, 1, -1, 1) * .5, rad);
-    double rad = .2;
-    const int n = 5;
-    fvec4 arr[n];
-    double phi = 2 * std::numbers::pi / n;
-    for (int i = 0; i < n; ++i) {
-//        0., np.sin(rad) * np.cos(phi * i), np.sin(rad) * np.sin(phi * i), np.cos(rad)
-        arr[i] = fvec4(0, sin(rad) * cos(phi * i), sin(rad) * sin(phi * i), cos(rad));
-//        arr[i] = fvec4(cos(rad) * cos(phi * i), cos(rad) * sin(phi * i), sin(rad), 0);
-    }
-    vector<fvec4> vertexes{arr[0], arr[1], arr[2], arr[3], arr[4]};
-    auto f1 = Face(fvec3(0, 1, 0), vertexes);
-    regFace(f1);
+    mk_433();
 }
 
 void loop() {

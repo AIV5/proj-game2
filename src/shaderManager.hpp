@@ -14,6 +14,7 @@ GLuint loadProgram (void);
 GLuint getArrayLoc (char* name, int index);
 
 int regFace (Face &face);
+int regSphere(Sphere &sphere);
 
 void setPlayer (dmat4 coord);
 

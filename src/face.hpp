@@ -16,3 +16,13 @@ public:
     Face();
     Face(fvec3 color, vector<fvec4> &vertexes);
 };
+
+class Sphere {
+public:
+    int sphereIndex;
+    fvec3 sphereColor;
+    fvec4 sphereCenter;
+    double sphereRad;
+    Sphere();
+    Sphere(fvec3 color, fvec4 center, double rad);
+};

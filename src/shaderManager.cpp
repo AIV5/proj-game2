@@ -7,6 +7,8 @@
 
 extern GLuint prog;
 int faceCount = 0;
+int vertCount = 0;
+int sphereCount = 0;
 
 void _errorDegenerate() {
     std::cerr << "Error when constructing a face. Degenerate vector sistem was given.\n";
@@ -86,11 +88,19 @@ void printVector(dvec4 v) {
 }
 
 int regFace(Face &face) {
+    if (faceCount + 1 >= PGS_MAX_FACE) {
+        std::cerr << "Exceeded the limit of faces\n";
+        return -1;
+    } else if (vertCount + face.faceVert.size() >= PGS_MAX_VERT) {
+        std::cerr << "Exceeded the limit of vertexes\n";
+        return -1;
+    }
     face.faceIndex = faceCount;
     auto faceNumberLoc = glGetUniformLocation(prog, "faceNumber");
     auto faceColorLoc = getArrayLoc("faceColor", faceCount);
     auto faceVertNumLoc = getArrayLoc("faceVertNum", faceCount);
-    auto faceVertLoc = getArrayLoc("faceVert", faceCount);
+    auto faceVertStartLoc = getArrayLoc("faceVertStart", faceCount);
+    auto VertLoc = getArrayLoc("Vert", vertCount);
     ++faceCount;
     glUniform1i(faceNumberLoc, faceCount);
     glUniform4f(faceColorLoc, face.faceColor[0], face.faceColor[1], face.faceColor[2], 1);
@@ -98,9 +108,29 @@ int regFace(Face &face) {
         printVector(v);
     }
     std::cout << std::endl;
+    glUniform1i(faceVertStartLoc, vertCount);
+    vertCount += face.faceVert.size();
     glUniform1i(faceVertNumLoc, face.faceVert.size());
-    glUniform4fv(faceVertLoc, face.faceVert.size(), &face.faceVert[0][0]);
+    glUniform4fv(VertLoc, face.faceVert.size(), &face.faceVert[0][0]);
     return face.faceIndex;
+}
+
+int regSphere(Sphere &sphere) {
+    if (sphereCount + 1 >= PGS_MAX_SPHERE) {
+        std::cerr << "Exceeded the limit of spheres\n";
+        return -1;
+    }
+    sphere.sphereIndex = sphereCount;
+    auto sphereNumberLoc = glGetUniformLocation(prog, "sphereNumber");
+    auto sphereColorLoc = getArrayLoc("sphereColor", sphereCount);
+    auto sphereCenterLoc = getArrayLoc("sphereCenter", sphereCount);
+    auto sphereRadLoc = getArrayLoc("sphereRad", sphereCount);
+    ++sphereCount;
+    glUniform1i(sphereNumberLoc, sphereCount);
+    glUniform4f(sphereColorLoc, sphere.sphereColor[0], sphere.sphereColor[1], sphere.sphereColor[2], 1);
+    glUniform4f(sphereCenterLoc, sphere.sphereCenter[0], sphere.sphereCenter[1], sphere.sphereCenter[2], sphere.sphereCenter[3]);
+    glUniform1f(sphereRadLoc, sphere.sphereRad);
+    return sphere.sphereIndex;
 }
 
 void setPlayer(dmat4 coord) {
