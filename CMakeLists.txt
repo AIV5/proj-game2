@@ -12,9 +12,9 @@ add_executable(${PROJECT_NAME}
             src/render.cpp
             src/inputs.hpp
             src/inputs.cpp
-            src/face.hpp
-            src/face.cpp
-            )
+        src/geometry.hpp
+        src/geometry.cpp
+        )
 
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
 

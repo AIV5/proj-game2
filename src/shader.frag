@@ -4,7 +4,6 @@ const int MAX_VERT = 256;
 const int MAX_FACES = 32;
 const int MAX_SPHERE = 16;
 const float pi = acos(-1);
-const float lambda = 2;
 
 out vec4 fragColor;
 
@@ -140,11 +139,23 @@ bool sphere_intersection(int sphereIndex) {
     return true;
 }
 
-void main() {
+vec4 get_look1() {
+    const float lambda = 2;
     vec2 normCoord = (gl_FragCoord.xy - hr) / length(hr);
     float polarRad = length(normCoord);
     vec2 polarTrig = polarRad == 0 ? vec2(0, 0) : normCoord / polarRad;
-    look = playerF * cos(lambda * polarRad) + (polarTrig.x * playerR + polarTrig.y * playerU) * sin(lambda * polarRad);
+    return playerF * cos(lambda * polarRad) + (polarTrig.x * playerR + polarTrig.y * playerU) * sin(lambda * polarRad);
+}
+
+vec4 get_look2() {
+    const float shift = .5;
+    vec2 normCoord = (gl_FragCoord.xy - hr) / length(hr);
+    vec3 pix = normalize(vec3(normCoord, shift));
+    return playerR * pix.x + playerU * pix.y + playerF * pix.z;
+}
+
+void main() {
+    look = get_look2();
     if (dot(look, playerF) < 0) {
         fragColor = vec4(0, 0, 0, 1);
         return;
@@ -182,9 +193,9 @@ void main() {
         }
     }
     if (type == 1) {
-        fragColor = faceColor[indexMin] - .3 * dMin;
+        fragColor = faceColor[indexMin] - .5 * dMin;
     } else if (type == 2) {
-         fragColor = sphereColor[indexMin] - .3 * dMin;
+         fragColor = sphereColor[indexMin] - .5 * dMin;
     } else {
         fragColor = vec4(.25, .25, .25, 1);
     }

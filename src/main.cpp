@@ -1,6 +1,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
+#include <glm/gtc/random.hpp>
 #include <chrono>
 #include <iostream>
 #include "render.hpp"
@@ -13,6 +14,7 @@ using glm::fvec4;
 using glm::dvec3;
 using glm::dvec4;
 using glm::dmat4;
+using glm::linearRand;
 
 dmat4 player = dmat4(1);
 double deltaTime = 0;
@@ -134,54 +136,85 @@ static void mk_433() {
 
     Sphere s(fvec3(1, 1, 1), fvec4(1, 0, 0, 0), 0.03);
     regSphere(s);
-
-    // 1+
-    vertexes = {fvec4(a, a, a, a), fvec4(a, a, a, -a), fvec4(-a, a, a, -a), fvec4(-a, a, a, a)};
-    f = Face(fvec3(.5, .6, .1), vertexes);
-    regFace(f);
-
-    vertexes = {fvec4(a, a, a, a), fvec4(a, a, -a, a), fvec4(-a, a, -a, a), fvec4(-a, a, a, a)};
-    f = Face(fvec3(.5, .1, .6), vertexes);
-    regFace(f);
-
-    // 1-
-    vertexes = {fvec4(a, -a, a, a), fvec4(a, -a, a, -a), fvec4(-a, -a, a, -a), fvec4(-a, -a, a, a)};
-    f = Face(fvec3(.6, .5, .1), vertexes);
-    regFace(f);
-
-    vertexes = {fvec4(a, -a, a, a), fvec4(a, -a, -a, a), fvec4(-a, -a, -a, a), fvec4(-a, -a, a, a)};
-    f = Face(fvec3(.1, .5, .6), vertexes);
-    regFace(f);
-
-    s = Sphere(fvec3(.5, .3, .3), fvec4(0, 1, 0, 0), 0.03);
-    regSphere(s);
-
-    // 2+
-    vertexes = {fvec4(a, a, a, a), fvec4(a, -a, a, a), fvec4(-a, -a, a, a), fvec4(-a, a, a, a)};
-    f = Face(fvec3(.6, .1, .5), vertexes);
-    regFace(f);
-
-    // 2-
-    vertexes = {fvec4(a, a, -a, a), fvec4(a, -a, -a, a), fvec4(-a, -a, -a, a), fvec4(-a, a, -a, a)};
-    f = Face(fvec3(.6, .1, .5), vertexes);
-    regFace(f);
-
-    s = Sphere(fvec3(.3, .5, .3), fvec4(0, 0, 1, 0), 0.03);
-    regSphere(s);
-
-    s = Sphere(fvec3(.3, .3, .5), fvec4(0, 0, 0, 1), 0.03);
-    regSphere(s);
+//
+//    // 1+
+//    vertexes = {fvec4(a, a, a, a), fvec4(a, a, a, -a), fvec4(-a, a, a, -a), fvec4(-a, a, a, a)};
+//    f = Face(fvec3(.5, .6, .1), vertexes);
+//    regFace(f);
+//
+//    vertexes = {fvec4(a, a, a, a), fvec4(a, a, -a, a), fvec4(-a, a, -a, a), fvec4(-a, a, a, a)};
+//    f = Face(fvec3(.5, .1, .6), vertexes);
+//    regFace(f);
+//
+//    // 1-
+//    vertexes = {fvec4(a, -a, a, a), fvec4(a, -a, a, -a), fvec4(-a, -a, a, -a), fvec4(-a, -a, a, a)};
+//    f = Face(fvec3(.6, .5, .1), vertexes);
+//    regFace(f);
+//
+//    vertexes = {fvec4(a, -a, a, a), fvec4(a, -a, -a, a), fvec4(-a, -a, -a, a), fvec4(-a, -a, a, a)};
+//    f = Face(fvec3(.1, .5, .6), vertexes);
+//    regFace(f);
+//
+//    s = Sphere(fvec3(.5, .3, .3), fvec4(0, 1, 0, 0), 0.03);
+//    regSphere(s);
+//
+//    // 2+
+//    vertexes = {fvec4(a, a, a, a), fvec4(a, -a, a, a), fvec4(-a, -a, a, a), fvec4(-a, a, a, a)};
+//    f = Face(fvec3(.6, .1, .5), vertexes);
+//    regFace(f);
+//
+//    // 2-
+//    vertexes = {fvec4(a, a, -a, a), fvec4(a, -a, -a, a), fvec4(-a, -a, -a, a), fvec4(-a, a, -a, a)};
+//    f = Face(fvec3(.6, .1, .5), vertexes);
+//    regFace(f);
+//
+//    s = Sphere(fvec3(.3, .5, .3), fvec4(0, 0, 1, 0), 0.03);
+//    regSphere(s);
+//
+//    s = Sphere(fvec3(.3, .3, .5), fvec4(0, 0, 0, 1), 0.03);
+//    regSphere(s);
 }
-/*
+
 static void mk_343() {
     vector<fvec4> vertexes(4);
-    double a = .5;
+    double a = sqrt(.5);
 
-    vertexes = {fvec4(a, a, a, a), fvec4(a, a, a, -a), fvec4(a, a, -a, -a), fvec4(a, a, -a, a)};
-    auto f = Face(compRand4(0, 1), vertexes);
+    vertexes = {fvec4(0, 0, a, a), fvec4(0, a, 0, a), fvec4(0, a, a, 0)};
+    auto f = Face(linearRand(fvec3(0), fvec3(1)), vertexes);
     regFace(f);
+
+    vertexes = {fvec4(0, 0, a, a), fvec4(a, 0, 0, a), fvec4(a, 0, a, 0)};
+    f = Face(linearRand(fvec3(0), fvec3(1)), vertexes);
+    regFace(f);
+
+    vertexes = {fvec4(0, a, 0, a), fvec4(a, 0, 0, a), fvec4(a, a, 0, 0)};
+    f = Face(linearRand(fvec3(0), fvec3(1)), vertexes);
+    regFace(f);
+
+    vertexes = {fvec4(0, a, a, 0), fvec4(a, 0, a, 0), fvec4(a, a, 0, 0)};
+    f = Face(linearRand(fvec3(0), fvec3(1)), vertexes);
+    regFace(f);
+//
+    vertexes = {fvec4(a, a, 0, 0), fvec4(a, 0, a, 0), fvec4(a, 0, 0, a)};
+    f = Face(linearRand(fvec3(0), fvec3(1)), vertexes);
+    regFace(f);
+
+    vertexes = {fvec4(a, a, 0, 0), fvec4(0, a, a, 0), fvec4(0, a, 0, a)};
+    f = Face(linearRand(fvec3(0), fvec3(1)), vertexes);
+    regFace(f);
+
+    vertexes = {fvec4(a, 0, a, 0), fvec4(0, a, a, 0), fvec4(0, 0, a, a)};
+    f = Face(linearRand(fvec3(0), fvec3(1)), vertexes);
+    regFace(f);
+
+    vertexes = {fvec4(a, 0, 0, a), fvec4(0, a, 0, a), fvec4(0, 0, a, a)};
+    f = Face(linearRand(fvec3(0), fvec3(1)), vertexes);
+    regFace(f);
+
+    Sphere s(linearRand(fvec3(0), fvec3(1)), fvec4(.5, .5, .5, .5), .03);
+    regSphere(s);
 }
-*/
+
 void init() {
     renderLoad();   // this must be the first, I think
     glfwSetKeyCallback(window, keyCallback);

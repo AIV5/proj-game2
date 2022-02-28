@@ -1,6 +1,6 @@
 #pragma once
 
-#include "face.hpp"
+#include "geometry.hpp"
 #include "glad/glad.h"
 
 using glm::fmat4;
